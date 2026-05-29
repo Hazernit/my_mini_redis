@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Журнал работы — Mini Redis Server</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <nav class="nav">
+        <a class="brand" href="index.html">Проектная практика</a>
+        <div class="nav-links">
+          <a href="index.html">Главная</a>
+          <a href="about.html">О проекте</a>
+          <a href="projects.html">Учебные проекты</a>
+          <a href="research.html">Исследования</a>
+          <a class="active" href="journal.html">Журнал</a>
+          <a href="resources.html">Материалы</a>
+          <a href="demo.html">Демонстрация</a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container">
+      <h1>Журнал работы</h1>
+      <p class="lead">Краткая история разработки учебного проекта.</p>
+
+      <div class="timeline">
+        <section class="timeline-item">
+          <h2>Этап 1. Идея и требования</h2>
+          <p>Определены основные команды key-value хранилища: SET, GET, DELETE, EXISTS.</p>
+        </section>
+        <section class="timeline-item">
+          <h2>Этап 2. TCP-сервер</h2>
+          <p>Реализован сервер на Python, который принимает подключения по сокету и хранит данные в памяти.</p>
+        </section>
+        <section class="timeline-item">
+          <h2>Этап 3. Клиент и API</h2>
+          <p>Добавлен CLI-клиент и HTTP API, через который браузер может безопасно обращаться к TCP-серверу.</p>
+        </section>
+        <section class="timeline-item">
+          <h2>Этап 4. Веб-сайт</h2>
+          <p>Подготовлены информационные страницы и интерактивная демонстрация для защиты проекта.</p>
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer">Mini Redis Server</footer>
+  </body>
+</html>

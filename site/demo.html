@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Демонстрация — Mini Redis Server</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <nav class="nav">
+        <a class="brand" href="index.html">Проектная практика</a>
+        <div class="nav-links">
+          <a href="index.html">Главная</a>
+          <a href="about.html">О проекте</a>
+          <a href="projects.html">Учебные проекты</a>
+          <a href="research.html">Исследования</a>
+          <a href="journal.html">Журнал</a>
+          <a href="resources.html">Материалы</a>
+          <a class="active" href="demo.html">Демонстрация</a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container">
+      <h1>Как попробовать проект в работе</h1>
+      <p class="lead">
+        Эта страница отправляет команды в HTTP API, а API пересылает их в TCP Mini Redis Server.
+        Так можно проверить SET, GET, DELETE и EXISTS прямо из браузера.
+      </p>
+
+      <section class="demo-intro">
+        <div class="note">
+          Перед открытием демо запустите TCP-сервер и HTTP API:
+          <code>python src/server.py</code> и <code>python src/api.py</code>.
+          Статический сайт можно открыть через локальный HTTP-сервер из папки <code>site</code>.
+        </div>
+        <div class="steps-card">
+          <h2>Порядок проверки</h2>
+          <ol>
+            <li>Запустите Mini Redis Server.</li>
+            <li>Запустите HTTP API.</li>
+            <li>Введите ключ и значение.</li>
+            <li>Нажмите нужную команду: SET, GET, DELETE, EXISTS, PING, KEYS, FLUSH, UPDATE или LOG.</li>
+            <li>Посмотрите ответ сервера справа.</li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="demo-layout">
+        <div class="demo-panel">
+          <h2>Команда</h2>
+          <div class="form-grid">
+            <label>
+              Ключ
+              <input id="key" type="text" value="student" placeholder="Например: student">
+            </label>
+            <label>
+              Значение
+              <input id="value" type="text" value="project-practice" placeholder="Нужно для SET">
+            </label>
+          </div>
+          <div class="command-buttons">
+            <button type="button" data-command="SET">SET</button>
+            <button type="button" data-command="GET">GET</button>
+            <button type="button" data-command="DELETE">DELETE</button>
+            <button type="button" data-command="EXISTS">EXISTS</button>
+            <button type="button" data-command="PING">PING</button>
+            <button type="button" data-command="KEYS">KEYS</button>
+            <button type="button" data-command="FLUSH">FLUSH</button>
+            <button type="button" data-command="UPDATE">UPDATE</button>
+            <button type="button" data-command="LOG">LOG</button>
+          </div>
+        </div>
+
+        <aside class="demo-panel">
+          <h2>Ответ сервера</h2>
+          <pre id="result" class="result">Здесь появится результат выполнения команды.</pre>
+        </aside>
+      </section>
+
+      <section>
+        <h2>Примеры команд</h2>
+        <pre>SET student project-practice
+GET student
+EXISTS student
+DELETE student
+PING
+KEYS
+UPDATE student redis
+LOG
+FLUSH</pre>
+      </section>
+
+      <section>
+        <h2>Описание команд</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Команда</th>
+                <th>Формат</th>
+                <th>Назначение</th>
+                <th>Пример</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>SET</td>
+                <td><code>SET key value</code></td>
+                <td>Сохраняет значение по ключу</td>
+                <td><code>SET student project-practice</code></td>
+              </tr>
+              <tr>
+                <td>GET</td>
+                <td><code>GET key</code></td>
+                <td>Получает значение по ключу</td>
+                <td><code>GET student</code></td>
+              </tr>
+              <tr>
+                <td>DELETE</td>
+                <td><code>DELETE key</code></td>
+                <td>Удаляет ключ</td>
+                <td><code>DELETE student</code></td>
+              </tr>
+              <tr>
+                <td>EXISTS</td>
+                <td><code>EXISTS key</code></td>
+                <td>Проверяет наличие ключа</td>
+                <td><code>EXISTS student</code></td>
+              </tr>
+              <tr>
+                <td>PING</td>
+                <td><code>PING</code></td>
+                <td>Проверяет доступность сервера</td>
+                <td><code>PING</code></td>
+              </tr>
+              <tr>
+                <td>KEYS</td>
+                <td><code>KEYS</code></td>
+                <td>Показывает все ключи</td>
+                <td><code>KEYS</code></td>
+              </tr>
+              <tr>
+                <td>FLUSH</td>
+                <td><code>FLUSH</code></td>
+                <td>Очищает хранилище</td>
+                <td><code>FLUSH</code></td>
+              </tr>
+              <tr>
+                <td>UPDATE</td>
+                <td><code>UPDATE key value</code></td>
+                <td>Обновляет существующий ключ</td>
+                <td><code>UPDATE student redis</code></td>
+              </tr>
+              <tr>
+                <td>LOG</td>
+                <td><code>LOG</code></td>
+                <td>Показывает журнал команд</td>
+                <td><code>LOG</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>Расширение проекта</h2>
+        <p>
+          В рамках расширения проекта были добавлены дополнительные команды PING,
+          KEYS, FLUSH, UPDATE и LOG.
+        </p>
+        <p>
+          Команда PING позволяет проверить доступность сервера.<br>
+          Команда KEYS выводит список всех сохранённых ключей.<br>
+          Команда FLUSH очищает хранилище.<br>
+          Команда UPDATE обновляет значение только у существующего ключа.<br>
+          Команда LOG показывает журнал выполненных команд.
+        </p>
+        <p>
+          Также было добавлено ведение журнала команд. Сервер сохраняет информацию
+          о выполненных командах в памяти: время выполнения, название команды и результат.
+          Это позволяет отслеживать работу Mini Redis Server и демонстрирует базовый принцип
+          логирования в серверных приложениях.
+        </p>
+      </section>
+    </main>
+
+    <footer class="footer">Mini Redis Server</footer>
+    <script src="script.js"></script>
+  </body>
+</html>

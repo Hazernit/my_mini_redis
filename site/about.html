@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>О проекте — Mini Redis Server</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <nav class="nav">
+        <a class="brand" href="index.html">Проектная практика</a>
+        <div class="nav-links">
+          <a href="index.html">Главная</a>
+          <a class="active" href="about.html">О проекте</a>
+          <a href="projects.html">Учебные проекты</a>
+          <a href="research.html">Исследования</a>
+          <a href="journal.html">Журнал</a>
+          <a href="resources.html">Материалы</a>
+          <a href="demo.html">Демонстрация</a>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero project-hero">
+        <div class="hero-inner">
+          <p class="eyebrow">Проектная деятельность</p>
+          <h1>Mini Redis Server</h1>
+          <p class="lead">
+            Учебная реализация простого key-value хранилища с TCP-сервером,
+            CLI-клиентом, HTTP API и браузерной демонстрацией для проектной практики.
+          </p>
+          <div class="button-row">
+            <a class="button" href="demo.html">Открыть демонстрацию</a>
+            <a class="button secondary" href="../docs/architecture.md">Документация по архитектуре</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="container section-block">
+        <h2 class="section-title">Что показывает проект</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>TCP-сервер</h3>
+            <p>Принимает команды SET, GET, DELETE, EXISTS, PING, KEYS, FLUSH, UPDATE и LOG, хранит данные в памяти и возвращает текстовый ответ.</p>
+          </article>
+          <article class="card">
+            <h3>HTTP API</h3>
+            <p>Связывает браузерную страницу с TCP-сервером, потому что JavaScript в браузере не подключается к TCP напрямую.</p>
+          </article>
+          <article class="card">
+            <h3>Веб-демо</h3>
+            <p>Позволяет выполнить базовые команды через форму и сразу увидеть результат работы Mini Redis Server.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="container section-block">
+        <h2 class="section-title">Цель проекта</h2>
+        <p class="content-text">
+          Цель проекта — реализовать минимальное key-value хранилище по мотивам Redis,
+          добавить клиентские инструменты и показать работу сервера через понятный веб-интерфейс.
+        </p>
+      </section>
+
+      <section class="container section-block">
+        <h2 class="section-title">Поддерживаемые команды</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>Базовые операции</h3>
+            <p>SET сохраняет значение, GET получает значение, DELETE удаляет ключ, EXISTS проверяет наличие ключа.</p>
+          </article>
+          <article class="card">
+            <h3>Служебные команды</h3>
+            <p>PING проверяет доступность сервера, KEYS показывает список ключей, FLUSH очищает хранилище.</p>
+          </article>
+          <article class="card">
+            <h3>Расширенные операции</h3>
+            <p>UPDATE обновляет только существующий ключ, LOG показывает журнал последних выполненных команд.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="container section-block">
+        <h2 class="section-title">Архитектура</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>src/server.py</h3>
+            <p>TCP Mini Redis Server. Хранит данные в словаре Python и обрабатывает команды построчно.</p>
+          </article>
+          <article class="card">
+            <h3>src/client.py</h3>
+            <p>CLI-клиент для ручной проверки сервера из терминала.</p>
+          </article>
+          <article class="card">
+            <h3>src/api.py</h3>
+            <p>HTTP-прослойка для сайта. Принимает JSON, отправляет команду в TCP-сервер и возвращает JSON-ответ.</p>
+          </article>
+          <article class="card">
+            <h3>site/demo.html</h3>
+            <p>Браузерная форма, которая отправляет запросы через fetch в HTTP API.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="container section-block">
+        <h2 class="section-title">Поток данных</h2>
+        <pre>demo.html -> fetch -> src/api.py -> TCP socket -> src/server.py -> ответ на страницу</pre>
+        <p class="content-text">
+          Такой подход нужен потому, что браузер работает с HTTP-запросами, но не подключается
+          напрямую к произвольному TCP-серверу. Поэтому HTTP API выступает промежуточным слоем
+          между интерфейсом сайта и Mini Redis Server.
+        </p>
+      </section>
+    </main>
+
+    <footer class="footer">Mini Redis Server — проектная практика</footer>
+  </body>
+</html>
