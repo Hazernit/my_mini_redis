@@ -67,6 +67,8 @@ Mini Redis Server — учебная реализация простого key-v
 my_mini_redis/
 ├── README.md
 ├── .gitignore
+├── Dockerfile
+├── docker-compose.yml
 ├── src/
 │   ├── server.py
 │   ├── client.py
@@ -115,6 +117,8 @@ site/demo.html -> JavaScript fetch -> src/api.py -> TCP -> src/server.py -> от
 
 ## Инструкция по запуску
 
+### Локальный запуск без Docker
+
 Запуск TCP-сервера:
 
 ```bash
@@ -149,6 +153,26 @@ http://127.0.0.1:8000/demo.html
 5. Ввести ключ и значение.
 6. Выполнить команды `SET`, `GET`, `DELETE`, `EXISTS`, `PING`, `KEYS`, `FLUSH`, `UPDATE`, `LOG`.
 7. Проверить ответ сервера в блоке результата.
+
+### Локальный запуск через Docker Compose
+
+Из корня проекта:
+
+```bash
+docker compose up -d --build
+```
+
+Проверка HTTP API:
+
+```bash
+curl http://127.0.0.1:8080/health
+```
+
+Остановка:
+
+```bash
+docker compose down
+```
 
 ## Примеры команд
 
@@ -205,18 +229,18 @@ Backend/API можно запустить на виртуальной машин
 1. Создать виртуальную машину с публичным IP-адресом.
 2. Установить Python 3 и Git.
 3. Склонировать репозиторий.
-4. Запустить TCP-сервер и HTTP API.
+4. Запустить TCP-сервер и HTTP API через Docker Compose.
 5. Открыть порт HTTP API в правилах Security Group.
 
 Пример команд для виртуальной машины:
 
 ```bash
 sudo apt update
-sudo apt install -y python3 git
+sudo apt install -y git docker.io docker-compose-plugin
+sudo systemctl enable --now docker
 git clone <URL_РЕПОЗИТОРИЯ>
 cd my_mini_redis
-python3 src/server.py --host 127.0.0.1 --port 6379
-MINI_REDIS_HOST=127.0.0.1 MINI_REDIS_PORT=6379 python3 src/api.py --host 0.0.0.0 --port 8080
+docker compose up -d --build
 ```
 
 Переменные окружения:
@@ -227,7 +251,7 @@ MINI_REDIS_HOST=127.0.0.1 MINI_REDIS_PORT=6379 python3 src/api.py --host 0.0.0.0
 Для облачного запуска нужно указать публичный адрес API в файле `site/script.js`:
 
 ```js
-const API_URL = "http://<PUBLIC_VM_IP>:8080/command";
+const API_URL = "http://<PUBLIC_VM_IP>:8080";
 ```
 
 Ограничения MVP:

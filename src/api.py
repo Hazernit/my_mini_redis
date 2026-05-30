@@ -94,7 +94,7 @@ def build_command(payload):
 
 def parse_args():
     parser = argparse.ArgumentParser(description="HTTP API for Mini Redis demo site")
-    parser.add_argument("--host", default="127.0.0.1", help="HTTP API host")
+    parser.add_argument("--host", default="0.0.0.0", help="HTTP API host")
     parser.add_argument("--port", default=8080, type=int, help="HTTP API port")
     return parser.parse_args()
 

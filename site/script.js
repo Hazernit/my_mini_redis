@@ -1,4 +1,5 @@
-const API_URL = "http://127.0.0.1:8080/command";
+// Для Yandex Cloud заменить на http://PUBLIC_VM_IP:8080
+const API_URL = "http://127.0.0.1:8080";
 
 const keyInput = document.querySelector("#key");
 const valueInput = document.querySelector("#value");
@@ -19,7 +20,7 @@ async function runCommand(command) {
   showResult("Отправка команды...");
 
   try {
-    const response = await fetch(API_URL, {
+    const response = await fetch(`${API_URL}/command`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

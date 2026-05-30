@@ -1,15 +1,33 @@
 # Размещение проекта в Yandex Cloud
 
-## Общая идея размещения
+## Общая схема
 
-Проект состоит из статического сайта и backend-части. Поэтому для MVP удобно разделить размещение на две части:
+Проект состоит из двух частей:
 
-- сайт из папки `site` разместить как статический сайт;
-- TCP-сервер и HTTP API запустить на виртуальной машине.
+- статический сайт из папки `site`;
+- backend: TCP Mini Redis Server и HTTP API.
 
-## Вариант для защиты: локальный запуск
+Для MVP удобно разместить сайт в Yandex Object Storage, а backend запустить на виртуальной машине Yandex Compute Cloud через Docker Compose.
 
-Самый простой вариант для демонстрации проекта — запустить все локально.
+```text
+Браузер / телефон
+        |
+        | открывает статический сайт
+        v
+Yandex Object Storage
+        |
+        | fetch к API_URL
+        v
+VM в Yandex Compute Cloud: порт 8080
+        |
+        | docker network
+        v
+mini-redis-api -> mini-redis-server
+```
+
+## Локальный запуск без Docker
+
+Локальный запуск остается прежним.
 
 В первом терминале:
 
@@ -26,80 +44,185 @@ python src/api.py
 В третьем терминале:
 
 ```bash
-cd site
-python -m http.server 8000
+python3 -m http.server 8000
 ```
 
-После запуска демонстрация будет доступна по адресу:
+После запуска сайт доступен по адресу:
 
 ```text
-http://127.0.0.1:8000/demo.html
+http://127.0.0.1:8000/site/demo.html
 ```
 
-## Облачный вариант MVP
+HTTP API по умолчанию слушает `0.0.0.0:8080`. Для локальной проверки это не мешает: браузер по-прежнему обращается к `http://127.0.0.1:8080`.
 
-Для облачного запуска можно использовать следующие сервисы Yandex Cloud:
+## Локальный запуск через Docker Compose
 
-- Object Storage — для размещения статического сайта.
-- Compute Cloud — для запуска TCP-сервера и HTTP API.
-- Virtual Private Cloud — для сетевой инфраструктуры.
-- Security Groups — для настройки доступа к портам.
+Из корня проекта:
 
-## Размещение статического сайта
+```bash
+docker compose up -d --build
+```
 
-Порядок действий:
+Проверка API:
 
-1. Создать бакет в Object Storage.
-2. Включить режим хостинга статического сайта.
-3. Загрузить файлы из папки `site`.
-4. Указать `index.html` как главную страницу.
-5. Проверить, что сайт открывается по публичному адресу бакета.
+```bash
+curl http://127.0.0.1:8080/health
+curl -X POST http://127.0.0.1:8080/command \
+  -H "Content-Type: application/json" \
+  -d "{\"command\":\"PING\"}"
+```
 
-## Запуск backend/API на виртуальной машине
+Остановка:
 
-Порядок действий:
+```bash
+docker compose down
+```
 
-1. Создать виртуальную машину в Compute Cloud.
-2. Назначить публичный IP-адрес.
-3. Установить Python 3 и Git.
-4. Склонировать репозиторий.
-5. Запустить TCP-сервер.
-6. Запустить HTTP API.
-7. Открыть порт `8080` в Security Group.
+В `docker-compose.yml` запускаются два сервиса:
 
-Пример команд:
+- `mini-redis-server` — TCP-сервер на порту `6379`;
+- `mini-redis-api` — HTTP API на порту `8080`.
+
+API обращается к серверу по переменным окружения:
+
+```text
+MINI_REDIS_HOST=mini-redis-server
+MINI_REDIS_PORT=6379
+```
+
+## Запуск backend на VM
+
+1. Создайте виртуальную машину в Yandex Compute Cloud.
+2. Назначьте VM публичный IP-адрес.
+3. Подключитесь к VM по SSH.
+4. Установите Git и Docker.
+
+Пример для Ubuntu:
 
 ```bash
 sudo apt update
-sudo apt install -y python3 git
-git clone <URL_РЕПОЗИТОРИЯ>
-cd my_mini_redis
-python3 src/server.py --host 127.0.0.1 --port 6379
+sudo apt install -y git docker.io docker-compose-plugin
+sudo systemctl enable --now docker
 ```
 
-В отдельном терминале или через сервисный менеджер:
+Клонируйте репозиторий:
 
 ```bash
-MINI_REDIS_HOST=127.0.0.1 MINI_REDIS_PORT=6379 python3 src/api.py --host 0.0.0.0 --port 8080
+git clone https://github.com/Hazernit/my_mini_redis.git
+cd my_mini_redis
 ```
 
-## Переменные окружения
+Запустите backend:
 
-- `MINI_REDIS_HOST` — адрес TCP-сервера Mini Redis Server.
-- `MINI_REDIS_PORT` — порт TCP-сервера Mini Redis Server.
+```bash
+docker compose up -d --build
+```
 
-## Настройка сайта для облачного API
+Проверьте API на VM:
 
-В файле `site/script.js` нужно заменить локальный адрес API на публичный адрес виртуальной машины:
+```bash
+curl http://127.0.0.1:8080/health
+curl -X POST http://127.0.0.1:8080/command \
+  -H "Content-Type: application/json" \
+  -d "{\"command\":\"PING\"}"
+```
+
+С внешнего компьютера API должен открываться по адресу:
+
+```text
+http://PUBLIC_VM_IP:8080/health
+```
+
+## Как открыть порт 8080
+
+В группе безопасности VM нужно добавить входящее правило:
+
+- направление: входящий трафик;
+- протокол: TCP;
+- порт: `8080`;
+- источник: `0.0.0.0/0` для учебного MVP.
+
+Для SSH также должен быть открыт порт `22`.
+
+Порт `6379` наружу открывать не нужно: HTTP API обращается к `mini-redis-server` внутри Docker-сети.
+
+## Как заменить API_URL
+
+Перед загрузкой сайта в Object Storage откройте файл `site/script.js`.
+
+Для локального запуска:
 
 ```js
-const API_URL = "http://<PUBLIC_VM_IP>:8080/command";
+const API_URL = "http://127.0.0.1:8080";
 ```
+
+Для Yandex Cloud замените адрес на публичный IP виртуальной машины:
+
+```js
+const API_URL = "http://PUBLIC_VM_IP:8080";
+```
+
+После замены сохраните файл и загрузите папку `site` в Object Storage.
+
+## Загрузка папки site в Object Storage
+
+Через консоль Yandex Cloud:
+
+1. Откройте Object Storage.
+2. Создайте публичный бакет.
+3. Включите хостинг статического сайта.
+4. Укажите `index.html` как главную страницу.
+5. Загрузите все файлы из папки `site`:
+   - `index.html`;
+   - `about.html`;
+   - `projects.html`;
+   - `research.html`;
+   - `journal.html`;
+   - `resources.html`;
+   - `demo.html`;
+   - `script.js`;
+   - `styles.css`.
+6. Проверьте, что сайт открывается по адресу бакета.
+
+Важно: если сайт открыт по HTTPS, а API доступен только по HTTP, браузер может заблокировать запросы как mixed content. Для MVP можно использовать HTTP-адрес сайта. Для полноценного публичного размещения лучше настроить HTTPS для API через reverse proxy.
+
+## Как открыть сайт с телефона
+
+1. Убедитесь, что VM запущена.
+2. Убедитесь, что Docker Compose сервисы работают:
+
+```bash
+docker compose ps
+```
+
+3. Проверьте с компьютера:
+
+```text
+http://PUBLIC_VM_IP:8080/health
+```
+
+4. Откройте на телефоне публичный адрес сайта из Object Storage.
+5. Перейдите на страницу `demo.html`.
+6. Выполните `PING`, затем `SET`, `GET`, `KEYS` или другую команду.
+
+Если телефон не получает ответ от API, проверьте:
+
+- открыт ли порт `8080` в Security Group;
+- правильно ли указан `API_URL` в `site/script.js`;
+- запущены ли контейнеры `mini-redis-server` и `mini-redis-api`;
+- не блокирует ли браузер запрос с HTTPS-сайта на HTTP API.
+
+## Полезные ссылки
+
+- Yandex Object Storage: https://yandex.cloud/ru/docs/storage/
+- Хостинг статических сайтов: https://yandex.cloud/ru/docs/storage/concepts/hosting
+- Настройка хостинга Object Storage: https://yandex.cloud/ru/docs/storage/operations/hosting/setup
+- Группы безопасности VPC: https://yandex.cloud/en/docs/vpc/concepts/security-groups
+- Добавление правила в группу безопасности: https://yandex.cloud/ru/docs/vpc/operations/security-group-add-rule
 
 ## Ограничения MVP
 
-- Данные хранятся в памяти и исчезают после перезапуска сервера.
+- Данные хранятся в памяти и исчезают после перезапуска контейнера `mini-redis-server`.
 - HTTP API не содержит авторизации.
-- Для постоянной работы лучше настроить `systemd`.
-- Для публичного размещения желательно добавить HTTPS и reverse proxy.
-- Если сайт открыт по HTTPS, браузер может заблокировать запросы к HTTP API.
+- Порт `8080` открыт публично для демонстрации.
+- Для продакшена нужны HTTPS, reverse proxy, домен и ограничение доступа.

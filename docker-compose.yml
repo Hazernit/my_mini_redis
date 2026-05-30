@@ -1,0 +1,21 @@
+services:
+  mini-redis-server:
+    build: .
+    container_name: mini-redis-server
+    command: python src/server.py --host 0.0.0.0 --port 6379
+    expose:
+      - "6379"
+    restart: unless-stopped
+
+  mini-redis-api:
+    build: .
+    container_name: mini-redis-api
+    command: python src/api.py --host 0.0.0.0 --port 8080
+    environment:
+      MINI_REDIS_HOST: mini-redis-server
+      MINI_REDIS_PORT: "6379"
+    depends_on:
+      - mini-redis-server
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
