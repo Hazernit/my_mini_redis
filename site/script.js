@@ -1,5 +1,6 @@
 // Для Yandex Cloud заменить на http://PUBLIC_VM_IP:8080
-const API_URL = "http://127.0.0.1:8080";
+//const API_URL = "http://127.0.0.1:8080";
+const API_URL = "http://158.160.193.231:8080";
 
 const keyInput = document.querySelector("#key");
 const valueInput = document.querySelector("#value");
